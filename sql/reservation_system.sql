@@ -1,0 +1,63 @@
+-- Base de données : reservation_system
+CREATE DATABASE IF NOT EXISTS reservation_system CHARACTER SET utf8mb4;
+USE reservation_system;
+
+-- 1. Utilisateur (3 rôles : Admin, Gestionnaire, Utilisateur)
+CREATE TABLE utilisateur (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL,
+    prenom VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('Admin','Gestionnaire','Utilisateur') NOT NULL DEFAULT 'Utilisateur',
+    date_creation DATE NOT NULL
+);
+
+-- 2. Bâtiment
+CREATE TABLE batiment (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    adresse VARCHAR(150) NOT NULL,
+    nombre_etages INT NOT NULL
+);
+
+-- 3. Salle
+CREATE TABLE salle (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    batiment_id INT NOT NULL,
+    etage INT NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    capacite INT NOT NULL,
+    equipements VARCHAR(255) DEFAULT '',
+    statut ENUM('Disponible','Maintenance','Indisponible') NOT NULL DEFAULT 'Disponible',
+    FOREIGN KEY (batiment_id) REFERENCES batiment(id) ON DELETE CASCADE
+);
+
+-- 4. Réservation
+CREATE TABLE reservation (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    salle_id INT NOT NULL,
+    utilisateur_id INT NOT NULL,
+    objet VARCHAR(150) NOT NULL,
+    date_debut DATETIME NOT NULL,
+    date_fin DATETIME NOT NULL,
+    statut ENUM('En attente','Validée','Refusée','Annulée') NOT NULL DEFAULT 'En attente',
+    date_creation DATETIME NOT NULL,
+    FOREIGN KEY (salle_id) REFERENCES salle(id) ON DELETE CASCADE,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id) ON DELETE CASCADE
+);
+
+-- Données d'exemple
+INSERT INTO utilisateur (nom, prenom, email, password, role, date_creation) VALUES
+('Ben Ali', 'Sami', 'admin@rooms.tn', '$2y$10$examplehashvalueforadmin000000', 'Admin', '2026-01-05'),
+('Trabelsi', 'Nour', 'gestionnaire@rooms.tn', '$2y$10$examplehashvalueforgest0000000', 'Gestionnaire', '2026-01-06'),
+('Karray', 'Yassine', 'yassine@rooms.tn', '$2y$10$examplehashvalueforuser00000000', 'Utilisateur', '2026-01-10');
+
+INSERT INTO batiment (nom, adresse, nombre_etages) VALUES
+('Bâtiment A', '1 Rue André Ampère, El Ghazala', 4),
+('Bâtiment B', '2 Rue des Sciences, El Ghazala', 3);
+
+INSERT INTO salle (batiment_id, etage, nom, capacite, equipements, statut) VALUES
+(1, 1, 'Salle Aurora', 12, 'Projecteur, Visioconférence, Tableau blanc', 'Disponible'),
+(1, 2, 'Salle Atlas', 8, 'Écran TV, Tableau blanc', 'Disponible'),
+(2, 1, 'Salle Nova', 20, 'Projecteur, Sonorisation', 'Maintenance');
