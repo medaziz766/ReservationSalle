@@ -78,7 +78,33 @@ fonction native `mail()` de PHP **et** journalise systématiquement chaque email
 configuré en local. Pour un envoi réel en production, remplacer le corps de `Mailer::send()`
 par PHPMailer + les identifiants SMTP de l'établissement.
 
-## Installation (XAMPP / WAMP)
+## Nouvelles fonctionnalités
+
+**Demande de modification (Utilisateur)**
+Quand un utilisateur modifie une de ses réservations (`View/Front/updateReservationUser.php`), elle repasse
+automatiquement en statut **« En attente »** avec `type_demande = 'Modification'`, et réapparaît dans
+`View/Back/demandes.php` (badge distinctif "Création" / "Modification") pour re-validation par le Gestionnaire.
+Un email de confirmation est envoyé (`Mailer::notifyDemandeModification`).
+
+⚠️ **Migration base de données requise** si ta base existe déjà (créée avant cette mise à jour) :
+```sql
+ALTER TABLE reservation
+ADD COLUMN type_demande ENUM('Création','Modification') NOT NULL DEFAULT 'Création' AFTER statut;
+```
+(Pas nécessaire si tu réimportes `sql/reservation_system.sql` en entier, la colonne y est déjà incluse.)
+
+**Cercles de progression — taux d'utilisation par salle (Admin → Statistiques)**
+Chaque salle affiche un cercle SVG (pur CSS/SVG, aucune librairie JS) représentant sa part dans le total des
+réservations validées : `pourcentage = validées_salle / total_validées_toutes_salles × 100`. Couleur du cercle
+selon le niveau : gris (<15%), orange (15-39%), vert (≥40%).
+
+**Export PDF détaillé (Admin → Rapports)**
+Le bouton **"Exporter en PDF"** génère un vrai fichier PDF via la librairie **FPDF** (`lib/fpdf/fpdf.php`,
+licence libre, embarquable sans restriction — voir `lib/fpdf/LICENSE.txt`), avec le détail complet de chaque
+réservation de la période (salle, bâtiment, dates, durée, statut) plus un résumé (totaux par statut) en bas
+de page, sur autant de pages que nécessaire.
+
+
 
 1. Copier `SalleReservationMVC` dans `htdocs` (XAMPP) ou `www` (WAMP).
 2. Importer `sql/reservation_system.sql` dans phpMyAdmin (crée la base `reservation_system`).

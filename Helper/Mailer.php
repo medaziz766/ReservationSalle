@@ -42,6 +42,15 @@ class Mailer
         self::send($to, $subject, $message);
     }
 
+    public static function notifyDemandeModification($to, $nomSalle, $dateDebut, $dateFin)
+    {
+        $subject = "Demande de modification envoyée - $nomSalle";
+        $message = "<p>Bonjour,</p><p>Votre demande de modification pour la salle <strong>$nomSalle</strong> 
+                     (nouveau créneau : du <strong>$dateDebut</strong> au <strong>$dateFin</strong>) a bien été 
+                     enregistrée et est de nouveau en attente de validation par le gestionnaire.</p>";
+        self::send($to, $subject, $message);
+    }
+
     public static function notifyReservationValidee($to, $nomSalle, $dateDebut, $dateFin)
     {
         $subject = "Réservation validée - $nomSalle";

@@ -30,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         null,
         $id
     );
-    $result = $controller->updateReservation($r);
+    $result = $controller->demanderModificationUtilisateur($r);
     if ($result === true) {
-        header("Location: mesReservations.php");
+        header("Location: mesReservations.php?demande=envoyee");
         exit;
     } else {
         $error = $result;
@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <section>
     <h2>Modifier ma réservation — <?= htmlspecialchars($data['salle_nom']) ?></h2>
+    <p style="color:var(--text-dim);">⚠️ Toute modification renvoie la réservation en statut <strong>« En attente »</strong> : elle devra être revalidée par le gestionnaire.</p>
 
     <?php if ($error): ?><p class="msg-error"><?= htmlspecialchars($error) ?></p><?php endif; ?>
 

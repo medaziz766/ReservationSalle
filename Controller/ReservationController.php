@@ -107,8 +107,8 @@ class ReservationController
         }
 
         $pdo = config::getConnexion();
-        $stmt = $pdo->prepare("INSERT INTO reservation (salle_id, utilisateur_id, objet, date_debut, date_fin, statut, date_creation)
-                                VALUES (:salle_id, :utilisateur_id, :objet, :date_debut, :date_fin, :statut, :date_creation)");
+        $stmt = $pdo->prepare("INSERT INTO reservation (salle_id, utilisateur_id, objet, date_debut, date_fin, statut, type_demande, date_creation)
+                                VALUES (:salle_id, :utilisateur_id, :objet, :date_debut, :date_fin, :statut, :type_demande, :date_creation)");
         $stmt->execute([
             'salle_id' => $r->getSalleId(),
             'utilisateur_id' => $r->getUtilisateurId(),
@@ -116,12 +116,14 @@ class ReservationController
             'date_debut' => $r->getDateDebut(),
             'date_fin' => $r->getDateFin(),
             'statut' => $r->getStatut(),
+            'type_demande' => $r->getTypeDemande() ?: 'Création',
             'date_creation' => $r->getDateCreation()
         ]);
         return true;
     }
 
-    // Modification / déplacement de réunion : vérifie à nouveau les conflits (hors la réservation elle-même)
+    // Modification / déplacement de réunion PAR LE GESTIONNAIRE (résolution de conflit) :
+    // n'affecte pas le statut, changement immédiat.
     public function updateReservation(Reservation $r)
     {
         if ($this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin(), $r->getId())) {
@@ -138,6 +140,31 @@ class ReservationController
             'date_fin' => $r->getDateFin(),
             'id' => $r->getId()
         ]);
+        return true;
+    }
+
+    // Demande de modification PAR L'UTILISATEUR : vérifie les conflits, applique le changement,
+    // mais repasse la réservation en "En attente" pour re-validation par le Gestionnaire.
+    public function demanderModificationUtilisateur(Reservation $r)
+    {
+        if ($this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin(), $r->getId())) {
+            return "Conflit : le nouveau créneau chevauche une autre réservation.";
+        }
+
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare("UPDATE reservation SET objet=:objet, date_debut=:date_debut, date_fin=:date_fin,
+                                statut='En attente', type_demande='Modification' WHERE id=:id");
+        $stmt->execute([
+            'objet' => $r->getObjet(),
+            'date_debut' => $r->getDateDebut(),
+            'date_fin' => $r->getDateFin(),
+            'id' => $r->getId()
+        ]);
+
+        $updated = $this->getReservationById($r->getId());
+        if ($updated) {
+            Mailer::notifyDemandeModification($updated['user_email'], $updated['salle_nom'], $updated['date_debut'], $updated['date_fin']);
+        }
         return true;
     }
 

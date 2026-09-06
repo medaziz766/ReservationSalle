@@ -42,6 +42,7 @@ CREATE TABLE reservation (
     date_debut DATETIME NOT NULL,
     date_fin DATETIME NOT NULL,
     statut ENUM('En attente','Validée','Refusée','Annulée') NOT NULL DEFAULT 'En attente',
+    type_demande ENUM('Création','Modification') NOT NULL DEFAULT 'Création',
     date_creation DATETIME NOT NULL,
     FOREIGN KEY (salle_id) REFERENCES salle(id) ON DELETE CASCADE,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id) ON DELETE CASCADE

@@ -43,6 +43,8 @@ function statutBadgeR($statut) {
 
     <p class="subtitle"><?= count($reservations) ?> réservation(s) trouvée(s) entre le <?= htmlspecialchars($dateDebut) ?> et le <?= htmlspecialchars($dateFin) ?>.</p>
 
+    <a class="btn-add" href="exportRapportPDF.php?dateDebut=<?= htmlspecialchars($dateDebut) ?>&dateFin=<?= htmlspecialchars($dateFin) ?>" target="_blank">⬇ Exporter en PDF</a>
+
     <table class="admin-table">
         <tr><th>Salle</th><th>Bâtiment</th><th>Début</th><th>Fin</th><th>Statut</th></tr>
         <?php foreach ($reservations as $r): ?>

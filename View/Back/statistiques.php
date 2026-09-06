@@ -36,7 +36,29 @@ $active = 'statistiques';
         <div class="stat-card"><div class="num"><?= $totalRefusees ?></div><div class="label">Refusées</div></div>
     </div>
 
-    <h2 style="font-size:16px; color:#374151; margin-bottom:12px;">Utilisation par salle</h2>
+    <h2 style="font-size:16px; color:#374151; margin-bottom:12px;">Taux d'utilisation par salle</h2>
+    <p class="subtitle" style="margin-top:-8px;">Part de chaque salle dans le total des réservations validées.</p>
+    <div class="progress-grid">
+        <?php foreach ($stats as $s):
+            $pct = $totalValidees > 0 ? round(((int)$s['validees'] / $totalValidees) * 100) : 0;
+            $niveau = $pct >= 40 ? 'high' : ($pct >= 15 ? 'mid' : 'low');
+        ?>
+        <div class="progress-card">
+            <svg class="progress-circle" viewBox="0 0 36 36">
+                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="circle <?= $niveau ?>" stroke-dasharray="<?= $pct ?>, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <text x="18" y="20.5" class="pct-text"><?= $pct ?>%</text>
+            </svg>
+            <div class="room-name"><?= htmlspecialchars($s['nom']) ?></div>
+            <div class="room-sub"><?= htmlspecialchars($s['batiment_nom']) ?> — <?= (int)$s['validees'] ?> validée(s)</div>
+        </div>
+        <?php endforeach; ?>
+        <?php if (empty($stats)): ?>
+        <p>Aucune salle enregistrée pour le moment.</p>
+        <?php endif; ?>
+    </div>
+
+    <h2 style="font-size:16px; color:#374151; margin-bottom:12px;">Détail par salle</h2>
     <table class="admin-table">
         <tr><th>Salle</th><th>Bâtiment</th><th>Total réservations</th><th>Validées</th></tr>
         <?php foreach ($stats as $s): ?>

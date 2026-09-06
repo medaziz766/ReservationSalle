@@ -9,8 +9,9 @@ class Reservation
     private $dateFin;
     private $statut;
     private $dateCreation;
+    private $typeDemande;
 
-    public function __construct($salleId, $utilisateurId, $objet, $dateDebut, $dateFin, $statut, $dateCreation, $id = null)
+    public function __construct($salleId, $utilisateurId, $objet, $dateDebut, $dateFin, $statut, $dateCreation, $id = null, $typeDemande = 'Création')
     {
         $this->id = $id;
         $this->salleId = $salleId;
@@ -20,6 +21,7 @@ class Reservation
         $this->dateFin = $dateFin;
         $this->statut = $statut;
         $this->dateCreation = $dateCreation;
+        $this->typeDemande = $typeDemande;
     }
 
     public function getId() { return $this->id; }
@@ -30,6 +32,7 @@ class Reservation
     public function getDateFin() { return $this->dateFin; }
     public function getStatut() { return $this->statut; }
     public function getDateCreation() { return $this->dateCreation; }
+    public function getTypeDemande() { return $this->typeDemande; }
 
     public function setId($id) { $this->id = $id; }
     public function setSalleId($salleId) { $this->salleId = $salleId; }
@@ -38,6 +41,7 @@ class Reservation
     public function setDateDebut($dateDebut) { $this->dateDebut = $dateDebut; }
     public function setDateFin($dateFin) { $this->dateFin = $dateFin; }
     public function setStatut($statut) { $this->statut = $statut; }
+    public function setTypeDemande($typeDemande) { $this->typeDemande = $typeDemande; }
 
     public function show()
     {
@@ -46,6 +50,7 @@ class Reservation
                 <tr><th>Début</th><td>{$this->dateDebut}</td></tr>
                 <tr><th>Fin</th><td>{$this->dateFin}</td></tr>
                 <tr><th>Statut</th><td>{$this->statut}</td></tr>
+                <tr><th>Type</th><td>{$this->typeDemande}</td></tr>
               </table>";
     }
 }

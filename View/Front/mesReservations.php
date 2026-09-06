@@ -45,7 +45,10 @@ function statutBadgeU($statut) {
 
 <section>
     <h2>Mes réservations</h2>
-    <p style="color:var(--text-dim);">Vous pouvez modifier ou annuler une réservation jusqu'à <?= DELAI_LIMITE_HEURES ?>h avant le début de la réunion.</p>
+    <?php if (($_GET['demande'] ?? '') === 'envoyee'): ?>
+    <p class="msg-success">Votre demande de modification a été envoyée et est de nouveau en attente de validation.</p>
+    <?php endif; ?>
+    <p style="color:var(--text-dim);">Vous pouvez modifier ou annuler une réservation jusqu'à <?= DELAI_LIMITE_HEURES ?>h avant le début de la réunion. Toute modification repasse la réservation en attente de validation.</p>
 
     <form class="filter-bar" method="GET" action="mesReservations.php">
         <select name="statut">

@@ -28,9 +28,10 @@ $active = 'demandes';
     <p class="subtitle">Valider ou refuser les demandes en attente.</p>
 
     <table class="admin-table">
-        <tr><th>Salle</th><th>Bâtiment</th><th>Demandeur</th><th>Objet</th><th>Début</th><th>Fin</th><th>Actions</th></tr>
+        <tr><th>Type</th><th>Salle</th><th>Bâtiment</th><th>Demandeur</th><th>Objet</th><th>Début</th><th>Fin</th><th>Actions</th></tr>
         <?php foreach ($reservations as $r): ?>
         <tr>
+            <td><span class="badge <?= $r['type_demande'] === 'Modification' ? 'badge-warning' : 'badge-info' ?>"><?= htmlspecialchars($r['type_demande']) ?></span></td>
             <td><?= htmlspecialchars($r['salle_nom']) ?></td>
             <td><?= htmlspecialchars($r['batiment_nom']) ?></td>
             <td><?= htmlspecialchars($r['user_prenom'] . ' ' . $r['user_nom']) ?></td>
@@ -44,7 +45,7 @@ $active = 'demandes';
         </tr>
         <?php endforeach; ?>
         <?php if (empty($reservations)): ?>
-        <tr><td colspan="7">Aucune demande en attente.</td></tr>
+        <tr><td colspan="8">Aucune demande en attente.</td></tr>
         <?php endif; ?>
     </table>
 </div>
