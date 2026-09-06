@@ -2,7 +2,9 @@
 require_once __DIR__ . '/../../config.php';
 requireRole('Admin');
 require_once __DIR__ . '/../../Controller/SalleController.php';
+require_once __DIR__ . '/../../Controller/BatimentController.php';
 $controller = new SalleController();
+$batimentController = new BatimentController();
 
 if (isset($_GET['delete'])) {
     $controller->deleteSalle($_GET['delete']);
@@ -10,7 +12,12 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-$salles = $controller->listSalles();
+$recherche = $_GET['recherche'] ?? '';
+$batimentId = $_GET['batimentId'] ?? '';
+$statut = $_GET['statut'] ?? '';
+
+$salles = $controller->filterSallesAdmin($recherche ?: null, $batimentId ?: null, $statut ?: null);
+$batiments = $batimentController->listBatiments();
 $active = 'salles';
 
 function statutBadge($statut) {
@@ -33,6 +40,24 @@ function statutBadge($statut) {
     <p class="subtitle">Ajouter et configurer les salles (capacité, équipements, localisation).</p>
     <a href="addSalle.php" class="btn-add">+ Ajouter une salle</a>
 
+    <form class="filter-bar" method="GET" action="salles.php">
+        <input type="text" name="recherche" placeholder="Rechercher (nom, équipement)..." value="<?= htmlspecialchars($recherche) ?>">
+        <select name="batimentId">
+            <option value="">Tous les bâtiments</option>
+            <?php foreach ($batiments as $b): ?>
+            <option value="<?= $b['id'] ?>" <?= $batimentId == $b['id'] ? 'selected' : '' ?>><?= htmlspecialchars($b['nom']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select name="statut">
+            <option value="">Tous les statuts</option>
+            <?php foreach (['Disponible','Maintenance','Indisponible'] as $st): ?>
+            <option value="<?= $st ?>" <?= $statut === $st ? 'selected' : '' ?>><?= $st ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit">Filtrer</button>
+        <?php if ($recherche || $batimentId || $statut): ?><a href="salles.php" class="btn-outline" style="text-decoration:none; display:inline-flex; align-items:center;">Réinitialiser</a><?php endif; ?>
+    </form>
+
     <table class="admin-table">
         <tr><th>Nom</th><th>Bâtiment</th><th>Étage</th><th>Capacité</th><th>Équipements</th><th>Statut</th><th>Actions</th></tr>
         <?php foreach ($salles as $s): ?>
@@ -49,6 +74,9 @@ function statutBadge($statut) {
             </td>
         </tr>
         <?php endforeach; ?>
+        <?php if (empty($salles)): ?>
+        <tr><td colspan="7">Aucune salle trouvée pour ces critères.</td></tr>
+        <?php endif; ?>
     </table>
 </div>
 </body>

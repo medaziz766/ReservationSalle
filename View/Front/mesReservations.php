@@ -15,7 +15,17 @@ if (isset($_GET['annuler'])) {
     exit;
 }
 
-$mesReservations = $controller->listByUtilisateur($_SESSION['user_id']);
+// Liste complète (non filtrée) pour construire le menu déroulant des salles
+$toutesMesReservations = $controller->listByUtilisateur($_SESSION['user_id']);
+$sallesDistinctes = [];
+foreach ($toutesMesReservations as $r) {
+    $sallesDistinctes[$r['salle_id']] = $r['salle_nom'];
+}
+
+$statut = $_GET['statut'] ?? '';
+$salleId = $_GET['salleId'] ?? '';
+
+$mesReservations = $controller->listByUtilisateurFiltre($_SESSION['user_id'], $statut ?: null, $salleId ?: null);
 
 function statutBadgeU($statut) {
     $map = ['Validée' => 'badge-success', 'En attente' => 'badge-warning', 'Refusée' => 'badge-danger', 'Annulée' => 'badge-info'];
@@ -36,6 +46,23 @@ function statutBadgeU($statut) {
 <section>
     <h2>Mes réservations</h2>
     <p style="color:var(--text-dim);">Vous pouvez modifier ou annuler une réservation jusqu'à <?= DELAI_LIMITE_HEURES ?>h avant le début de la réunion.</p>
+
+    <form class="filter-bar" method="GET" action="mesReservations.php">
+        <select name="statut">
+            <option value="">Tous les statuts</option>
+            <?php foreach (['En attente','Validée','Refusée','Annulée'] as $st): ?>
+            <option value="<?= $st ?>" <?= $statut === $st ? 'selected' : '' ?>><?= $st ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select name="salleId">
+            <option value="">Toutes les salles</option>
+            <?php foreach ($sallesDistinctes as $id => $nom): ?>
+            <option value="<?= $id ?>" <?= $salleId == $id ? 'selected' : '' ?>><?= htmlspecialchars($nom) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit">Filtrer</button>
+        <?php if ($statut || $salleId): ?><a href="mesReservations.php" class="btn" style="background:transparent; color:var(--text-dim); border:1px solid var(--line); margin-top:0;">Réinitialiser</a><?php endif; ?>
+    </form>
 
     <table class="simple-table">
         <tr><th>Salle</th><th>Objet</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr>
@@ -59,7 +86,7 @@ function statutBadgeU($statut) {
         </tr>
         <?php endforeach; ?>
         <?php if (empty($mesReservations)): ?>
-        <tr><td colspan="6">Vous n'avez pas encore de réservation. <a href="salles.php">Réservez une salle</a>.</td></tr>
+        <tr><td colspan="6">Aucune réservation ne correspond à ces critères. <a href="salles.php">Réservez une salle</a>.</td></tr>
         <?php endif; ?>
     </table>
 </section>

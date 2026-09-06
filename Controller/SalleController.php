@@ -118,4 +118,32 @@ class SalleController
                               ORDER BY total_reservations DESC");
         return $stmt->fetchAll();
     }
+
+    // Filtre pour la liste Admin (contrairement à searchSalles, n'impose pas statut='Disponible')
+    public function filterSallesAdmin($motCle = null, $batimentId = null, $statut = null)
+    {
+        $pdo = config::getConnexion();
+        $sql = "SELECT s.*, b.nom AS batiment_nom
+                FROM salle s JOIN batiment b ON s.batiment_id = b.id
+                WHERE 1=1";
+        $params = [];
+
+        if (!empty($motCle)) {
+            $sql .= " AND (s.nom LIKE :mot OR s.equipements LIKE :mot)";
+            $params['mot'] = '%' . $motCle . '%';
+        }
+        if (!empty($batimentId)) {
+            $sql .= " AND s.batiment_id = :batiment_id";
+            $params['batiment_id'] = $batimentId;
+        }
+        if (!empty($statut)) {
+            $sql .= " AND s.statut = :statut";
+            $params['statut'] = $statut;
+        }
+        $sql .= " ORDER BY s.id DESC";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
 }

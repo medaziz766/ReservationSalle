@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# ReservationSalle
-=======
 # SalleReservationMVC — Système de Réservation de Salles de Réunion
 
 Application PHP 8 en architecture MVC (PDO uniquement, sans framework) pour la gestion
@@ -112,4 +109,3 @@ par PHPMailer + les identifiants SMTP de l'établissement.
 - Templates **responsifs** (Front et BackOffice, cf. media queries dans les CSS).
 - **Notifications email** (création, validation, refus, annulation).
 - Aucun framework utilisé.
->>>>>>> 8035d21 (crude test phase)

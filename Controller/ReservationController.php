@@ -44,6 +44,26 @@ class ReservationController
         return $stmt->fetchAll();
     }
 
+    // Historique filtré (statut et/ou salle) pour la page "Mes réservations"
+    public function listByUtilisateurFiltre($utilisateurId, $statut = null, $salleId = null)
+    {
+        $pdo = config::getConnexion();
+        $sql = "SELECT r.*, s.nom AS salle_nom, b.nom AS batiment_nom
+                FROM reservation r
+                JOIN salle s ON r.salle_id = s.id
+                JOIN batiment b ON s.batiment_id = b.id
+                WHERE r.utilisateur_id = :uid";
+        $params = ['uid' => $utilisateurId];
+
+        if (!empty($statut)) { $sql .= " AND r.statut = :statut"; $params['statut'] = $statut; }
+        if (!empty($salleId)) { $sql .= " AND r.salle_id = :salle_id"; $params['salle_id'] = $salleId; }
+
+        $sql .= " ORDER BY r.date_debut DESC";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
     // Réservations d'une salle donnée pour affichage calendrier (mois/année)
     public function listBySalleForCalendar($salleId, $year, $month)
     {

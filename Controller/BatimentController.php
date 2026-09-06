@@ -11,6 +11,17 @@ class BatimentController
         return $stmt->fetchAll();
     }
 
+    public function searchBatiments($motCle = null)
+    {
+        $pdo = config::getConnexion();
+        if (empty($motCle)) {
+            return $this->listBatiments();
+        }
+        $stmt = $pdo->prepare("SELECT * FROM batiment WHERE nom LIKE :mot OR adresse LIKE :mot ORDER BY id DESC");
+        $stmt->execute(['mot' => '%' . $motCle . '%']);
+        return $stmt->fetchAll();
+    }
+
     public function getBatimentById($id)
     {
         $pdo = config::getConnexion();
