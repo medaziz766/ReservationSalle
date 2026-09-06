@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="assets/js/theme.js"></script>
 <title>Ajouter une salle - Admin</title>
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>

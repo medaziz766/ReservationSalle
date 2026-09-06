@@ -18,6 +18,7 @@ $active = 'batiments';
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="assets/js/theme.js"></script>
 <title>Bâtiments - Admin</title>
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>

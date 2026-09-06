@@ -8,7 +8,7 @@ class SalleController
     public function listSalles()
     {
         $pdo = config::getConnexion();
-        $stmt = $pdo->query("SELECT s.*, b.nom AS batiment_nom
+        $stmt = $pdo->query("SELECT s.*, b.nom AS batiment_nom, b.adresse AS batiment_adresse, b.latitude AS batiment_lat, b.longitude AS batiment_lng
                               FROM salle s
                               JOIN batiment b ON s.batiment_id = b.id
                               ORDER BY s.id DESC");
@@ -18,7 +18,7 @@ class SalleController
     public function getSalleById($id)
     {
         $pdo = config::getConnexion();
-        $stmt = $pdo->prepare("SELECT s.*, b.nom AS batiment_nom
+        $stmt = $pdo->prepare("SELECT s.*, b.nom AS batiment_nom, b.adresse AS batiment_adresse, b.latitude AS batiment_lat, b.longitude AS batiment_lng
                                 FROM salle s
                                 JOIN batiment b ON s.batiment_id = b.id
                                 WHERE s.id = :id");
@@ -80,7 +80,7 @@ class SalleController
     public function searchSalles($capaciteMin = null, $batimentId = null, $equipementMotCle = null)
     {
         $pdo = config::getConnexion();
-        $sql = "SELECT s.*, b.nom AS batiment_nom
+        $sql = "SELECT s.*, b.nom AS batiment_nom, b.adresse AS batiment_adresse, b.latitude AS batiment_lat, b.longitude AS batiment_lng
                 FROM salle s JOIN batiment b ON s.batiment_id = b.id
                 WHERE s.statut = 'Disponible'";
         $params = [];
@@ -123,7 +123,7 @@ class SalleController
     public function filterSallesAdmin($motCle = null, $batimentId = null, $statut = null)
     {
         $pdo = config::getConnexion();
-        $sql = "SELECT s.*, b.nom AS batiment_nom
+        $sql = "SELECT s.*, b.nom AS batiment_nom, b.adresse AS batiment_adresse, b.latitude AS batiment_lat, b.longitude AS batiment_lng
                 FROM salle s JOIN batiment b ON s.batiment_id = b.id
                 WHERE 1=1";
         $params = [];

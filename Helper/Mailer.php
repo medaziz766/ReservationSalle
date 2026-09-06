@@ -75,4 +75,13 @@ class Mailer
                      du <strong>$dateDebut</strong> au <strong>$dateFin</strong> a été annulée.</p>";
         self::send($to, $subject, $message);
     }
+
+    public static function notifyReservationDeplacee($to, $ancienneSalle, $ancienDebut, $ancienneFin, $nouvelleSalle, $nouveauDebut, $nouvelleFin)
+    {
+        $subject = "Réunion déplacée - $nouvelleSalle";
+        $message = "<p>Bonjour,</p><p>Votre réunion a été déplacée par le gestionnaire afin de résoudre un conflit de réservation.</p>"
+                 . "<p><strong>Ancien créneau :</strong> $ancienneSalle, du $ancienDebut au $ancienneFin.<br>"
+                 . "<strong>Nouveau créneau :</strong> $nouvelleSalle, du $nouveauDebut au $nouvelleFin.</p>";
+        self::send($to, $subject, $message);
+    }
 }

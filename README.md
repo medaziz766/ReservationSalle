@@ -90,19 +90,36 @@ Un email de confirmation est envoyé (`Mailer::notifyDemandeModification`).
 ```sql
 ALTER TABLE reservation
 ADD COLUMN type_demande ENUM('Création','Modification') NOT NULL DEFAULT 'Création' AFTER statut;
+
+ALTER TABLE batiment
+ADD COLUMN latitude DECIMAL(10,7) NOT NULL DEFAULT 36.8987500,
+ADD COLUMN longitude DECIMAL(10,7) NOT NULL DEFAULT 10.1897200;
 ```
-(Pas nécessaire si tu réimportes `sql/reservation_system.sql` en entier, la colonne y est déjà incluse.)
+(Pas nécessaire si tu réimportes `sql/reservation_system.sql` en entier, les colonnes y sont déjà incluses.)
 
 **Cercles de progression — taux d'utilisation par salle (Admin → Statistiques)**
 Chaque salle affiche un cercle SVG (pur CSS/SVG, aucune librairie JS) représentant sa part dans le total des
 réservations validées : `pourcentage = validées_salle / total_validées_toutes_salles × 100`. Couleur du cercle
 selon le niveau : gris (<15%), orange (15-39%), vert (≥40%).
 
-**Export PDF détaillé (Admin → Rapports)**
-Le bouton **"Exporter en PDF"** génère un vrai fichier PDF via la librairie **FPDF** (`lib/fpdf/fpdf.php`,
-licence libre, embarquable sans restriction — voir `lib/fpdf/LICENSE.txt`), avec le détail complet de chaque
-réservation de la période (salle, bâtiment, dates, durée, statut) plus un résumé (totaux par statut) en bas
-de page, sur autant de pages que nécessaire.
+**Position GPS des bâtiments + petite carte dans les modals (OpenStreetMap / Leaflet)**
+- `View/Back/addBatiment.php` et `updateBatiment.php` affichent une carte Leaflet : on clique dessus pour
+  placer le bâtiment, ce qui remplit automatiquement les champs `latitude`/`longitude` (lecture seule, validés en JS).
+- Côté FrontOffice, pas de page "Carte" dédiée : un bouton **"📍 Position"** sur chaque carte de salle
+  (`View/Front/salles.php`) et sur la page de réservation (`View/Front/reserver.php`) ouvre une **petite fenêtre
+  modale** avec une carte OpenStreetMap centrée sur le bâtiment (marqueur + popup avec le nom). Le modal est
+  défini une seule fois dans `View/Front/footer.php` et réutilisé partout (`assets/js/mapModal.js`).
+- Aucune clé API requise (tuiles OpenStreetMap gratuites), chargé via le CDN Leaflet (`unpkg.com/leaflet`).
+
+**Mode jour/nuit**
+Un bouton 🌙/☀️ (en haut à droite du FrontOffice, en bas de la sidebar du BackOffice — Admin et Gestionnaire)
+bascule entre thème clair et sombre. Le choix est mémorisé dans le `localStorage` du navigateur
+(`assets/js/theme.js` dans `Front/` et `Back/`), donc conservé d'une page à l'autre. Implémenté en CSS pur via
+des variables (`:root[data-theme="dark"]`) — y compris les couleurs de fond des tableaux et des champs de
+formulaire (`--table-header-bg`, `--input-bg`), qui restaient blanches par erreur dans une version précédente.
+
+
+## Installation (XAMPP / WAMP)
 
 
 

@@ -18,7 +18,9 @@ CREATE TABLE batiment (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     adresse VARCHAR(150) NOT NULL,
-    nombre_etages INT NOT NULL
+    nombre_etages INT NOT NULL,
+    latitude DECIMAL(10,7) NOT NULL,
+    longitude DECIMAL(10,7) NOT NULL
 );
 
 -- 3. Salle
@@ -54,9 +56,9 @@ INSERT INTO utilisateur (nom, prenom, email, password, role, date_creation) VALU
 ('Trabelsi', 'Nour', 'gestionnaire@rooms.tn', '$2y$10$examplehashvalueforgest0000000', 'Gestionnaire', '2026-01-06'),
 ('Karray', 'Yassine', 'yassine@rooms.tn', '$2y$10$examplehashvalueforuser00000000', 'Utilisateur', '2026-01-10');
 
-INSERT INTO batiment (nom, adresse, nombre_etages) VALUES
-('Bâtiment A', '1 Rue André Ampère, El Ghazala', 4),
-('Bâtiment B', '2 Rue des Sciences, El Ghazala', 3);
+INSERT INTO batiment (nom, adresse, nombre_etages, latitude, longitude) VALUES
+('Bâtiment A', '1 Rue André Ampère, El Ghazala', 4, 36.8987500, 10.1897200),
+('Bâtiment B', '2 Rue des Sciences, El Ghazala', 3, 36.8991000, 10.1902500);
 
 INSERT INTO salle (batiment_id, etage, nom, capacite, equipements, statut) VALUES
 (1, 1, 'Salle Aurora', 12, 'Projecteur, Visioconférence, Tableau blanc', 'Disponible'),

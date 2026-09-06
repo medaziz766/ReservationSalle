@@ -33,22 +33,28 @@ class BatimentController
     public function addBatiment(Batiment $b)
     {
         $pdo = config::getConnexion();
-        $stmt = $pdo->prepare("INSERT INTO batiment (nom, adresse, nombre_etages) VALUES (:nom, :adresse, :etages)");
+        $stmt = $pdo->prepare("INSERT INTO batiment (nom, adresse, nombre_etages, latitude, longitude)
+                                VALUES (:nom, :adresse, :etages, :latitude, :longitude)");
         $stmt->execute([
             'nom' => $b->getNom(),
             'adresse' => $b->getAdresse(),
-            'etages' => $b->getNombreEtages()
+            'etages' => $b->getNombreEtages(),
+            'latitude' => $b->getLatitude(),
+            'longitude' => $b->getLongitude()
         ]);
     }
 
     public function updateBatiment(Batiment $b)
     {
         $pdo = config::getConnexion();
-        $stmt = $pdo->prepare("UPDATE batiment SET nom=:nom, adresse=:adresse, nombre_etages=:etages WHERE id=:id");
+        $stmt = $pdo->prepare("UPDATE batiment SET nom=:nom, adresse=:adresse, nombre_etages=:etages,
+                                latitude=:latitude, longitude=:longitude WHERE id=:id");
         $stmt->execute([
             'nom' => $b->getNom(),
             'adresse' => $b->getAdresse(),
             'etages' => $b->getNombreEtages(),
+            'latitude' => $b->getLatitude(),
+            'longitude' => $b->getLongitude(),
             'id' => $b->getId()
         ]);
     }

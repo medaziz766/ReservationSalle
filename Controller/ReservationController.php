@@ -100,9 +100,9 @@ class ReservationController
     }
 
     // Création d'une demande de réservation (front office ou manuelle par le gestionnaire)
-    public function createReservation(Reservation $r)
+    public function createReservation(Reservation $r, $autoriserConflit = false)
     {
-        if ($this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin())) {
+        if (!$autoriserConflit && $this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin())) {
             return "Conflit : la salle est déjà réservée sur ce créneau.";
         }
 
@@ -126,11 +126,32 @@ class ReservationController
     // n'affecte pas le statut, changement immédiat.
     public function updateReservation(Reservation $r)
     {
+        $reservationActuelle = $this->getReservationById($r->getId());
+        if (!$reservationActuelle) {
+            return "Réservation introuvable.";
+        }
+
+        if (strlen(trim($r->getObjet())) < 3) {
+            return "L'objet doit contenir au moins 3 caractères.";
+        }
+
+        $debut = strtotime($r->getDateDebut());
+        $fin = strtotime($r->getDateFin());
+        if ($debut === false || $fin === false || $fin <= $debut) {
+            return "La date de fin doit être postérieure à la date de début.";
+        }
+
+        $pdo = config::getConnexion();
+        $salleStmt = $pdo->prepare("SELECT id FROM salle WHERE id = :id AND statut = 'Disponible'");
+        $salleStmt->execute(['id' => $r->getSalleId()]);
+        if (!$salleStmt->fetch()) {
+            return "La salle choisie n'est pas disponible pour un déplacement.";
+        }
+
         if ($this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin(), $r->getId())) {
             return "Conflit : le nouveau créneau chevauche une autre réservation.";
         }
 
-        $pdo = config::getConnexion();
         $stmt = $pdo->prepare("UPDATE reservation SET salle_id=:salle_id, objet=:objet,
                                 date_debut=:date_debut, date_fin=:date_fin WHERE id=:id");
         $stmt->execute([
@@ -140,6 +161,19 @@ class ReservationController
             'date_fin' => $r->getDateFin(),
             'id' => $r->getId()
         ]);
+
+        $reservationDeplacee = $this->getReservationById($r->getId());
+        if ($reservationDeplacee) {
+            Mailer::notifyReservationDeplacee(
+                $reservationDeplacee['user_email'],
+                $reservationActuelle['salle_nom'],
+                $reservationActuelle['date_debut'],
+                $reservationActuelle['date_fin'],
+                $reservationDeplacee['salle_nom'],
+                $reservationDeplacee['date_debut'],
+                $reservationDeplacee['date_fin']
+            );
+        }
         return true;
     }
 

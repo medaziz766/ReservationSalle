@@ -27,7 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'En attente',
         date('Y-m-d H:i:s')
     );
-    $result = $reservationController->createReservation($r);
+    // Une demande utilisateur qui chevauche une réservation est conservée :
+    // elle sera proposée dans "Conflits" au gestionnaire, qui pourra la déplacer.
+    $result = $reservationController->createReservation($r, true);
     if ($result === true) {
         Mailer::notifyReservationCreee($_SESSION['email'], $salle['nom'], $r->getDateDebut(), $r->getDateFin());
         $success = true;
@@ -47,11 +49,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php include 'header.php'; ?>
 
 <section>
-    <h2>Réserver « <?= htmlspecialchars($salle['nom']) ?> »</h2>
+    <h2>Réserver « <?= htmlspecialchars($salle['nom']) ?> »
+        <button type="button" class="btn-map" style="margin-left:10px; vertical-align:middle;"
+            onclick="openMapModal('<?= htmlspecialchars($salle['batiment_nom'], ENT_QUOTES) ?>', '<?= htmlspecialchars($salle['batiment_adresse'], ENT_QUOTES) ?>', <?= (float)$salle['batiment_lat'] ?>, <?= (float)$salle['batiment_lng'] ?>)">
+            📍 Voir la position du bâtiment
+        </button>
+    </h2>
+    <p style="color:var(--text-dim); font-size:13px; margin-top:-14px;"><?= htmlspecialchars($salle['batiment_nom']) ?> — <?= htmlspecialchars($salle['batiment_adresse']) ?></p>
 
     <?php if ($success): ?>
         <div class="card" style="max-width:520px;margin:0 auto;">
-            <p class="msg-success">Votre demande a bien été envoyée. Elle est en attente de validation par le gestionnaire. Un email de confirmation vous a été envoyé.</p>
+            <p class="msg-success">Votre demande a bien été envoyée. Elle est en attente de validation par le gestionnaire. En cas de conflit, il proposera un nouveau créneau ou une autre salle et vous recevrez un email. Un email de confirmation vous a été envoyé.</p>
             <a class="btn" href="mesReservations.php">Voir mes réservations</a>
         </div>
     <?php else: ?>

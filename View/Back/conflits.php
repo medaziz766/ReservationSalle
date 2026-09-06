@@ -17,6 +17,7 @@ $active = 'conflits';
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="assets/js/theme.js"></script>
 <title>Conflits - Gestionnaire</title>
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>
@@ -24,7 +25,11 @@ $active = 'conflits';
 <?php include 'sidebar.php'; ?>
 <div class="content">
     <h1>Conflits de réservation</h1>
-    <p class="subtitle">Créneaux qui se chevauchent sur une même salle. Refuser l'une des deux réservations pour lever le conflit, ou déplacer une réunion.</p>
+    <p class="subtitle">Créneaux qui se chevauchent sur une même salle. Refusez une réservation ou déplacez-la vers une salle et/ou un créneau disponible.</p>
+
+    <?php if (($_GET['deplacement'] ?? '') === 'ok'): ?>
+        <p class="msg-success">La réunion a été déplacée et le demandeur a été notifié par email.</p>
+    <?php endif; ?>
 
     <?php if (empty($conflits)): ?>
         <p class="msg-success">Aucun conflit détecté actuellement.</p>

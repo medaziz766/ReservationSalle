@@ -21,5 +21,6 @@ $role = $_SESSION['role'];
             <a href="recherche.php" class="<?= $active === 'recherche' ? 'active' : '' ?>">Recherche</a>
         <?php endif; ?>
     </nav>
+    <button id="themeToggle" class="theme-toggle" type="button" title="Changer de thème">🌙</button>
     <a href="../Auth/logout.php" class="logout">Se déconnecter</a>
 </div>

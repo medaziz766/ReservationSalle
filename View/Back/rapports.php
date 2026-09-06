@@ -20,6 +20,7 @@ function statutBadgeR($statut) {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="assets/js/theme.js"></script>
 <title>Rapports - Admin</title>
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>
@@ -42,8 +43,6 @@ function statutBadgeR($statut) {
     </form>
 
     <p class="subtitle"><?= count($reservations) ?> réservation(s) trouvée(s) entre le <?= htmlspecialchars($dateDebut) ?> et le <?= htmlspecialchars($dateFin) ?>.</p>
-
-    <a class="btn-add" href="exportRapportPDF.php?dateDebut=<?= htmlspecialchars($dateDebut) ?>&dateFin=<?= htmlspecialchars($dateFin) ?>" target="_blank">⬇ Exporter en PDF</a>
 
     <table class="admin-table">
         <tr><th>Salle</th><th>Bâtiment</th><th>Début</th><th>Fin</th><th>Statut</th></tr>

@@ -20,6 +20,7 @@ $active = 'statistiques';
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script src="assets/js/theme.js"></script>
 <title>Statistiques - Admin</title>
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>
@@ -36,7 +37,7 @@ $active = 'statistiques';
         <div class="stat-card"><div class="num"><?= $totalRefusees ?></div><div class="label">Refusées</div></div>
     </div>
 
-    <h2 style="font-size:16px; color:#374151; margin-bottom:12px;">Taux d'utilisation par salle</h2>
+    <h2 style="font-size:16px; margin-bottom:12px;">Taux d'utilisation par salle</h2>
     <p class="subtitle" style="margin-top:-8px;">Part de chaque salle dans le total des réservations validées.</p>
     <div class="progress-grid">
         <?php foreach ($stats as $s):
@@ -58,7 +59,7 @@ $active = 'statistiques';
         <?php endif; ?>
     </div>
 
-    <h2 style="font-size:16px; color:#374151; margin-bottom:12px;">Détail par salle</h2>
+    <h2 style="font-size:16px; margin-bottom:12px;">Détail par salle</h2>
     <table class="admin-table">
         <tr><th>Salle</th><th>Bâtiment</th><th>Total réservations</th><th>Validées</th></tr>
         <?php foreach ($stats as $s): ?>

@@ -46,6 +46,7 @@ $salles = $salleController->searchSalles($capacite ?: null, $batimentId ?: null,
             <p style="color:var(--text-dim); font-size:13px;">Capacité : <?= (int)$s['capacite'] ?> personnes</p>
             <p style="color:var(--text-dim); font-size:13px;"><?= htmlspecialchars($s['equipements']) ?></p>
             <a class="btn" href="calendrier.php?salleId=<?= $s['id'] ?>">Voir le calendrier</a>
+            <button type="button" class="btn-map" onclick="openMapModal('<?= htmlspecialchars($s['batiment_nom'], ENT_QUOTES) ?>', '<?= htmlspecialchars($s['batiment_adresse'], ENT_QUOTES) ?>', <?= (float)$s['batiment_lat'] ?>, <?= (float)$s['batiment_lng'] ?>)">📍 Position</button>
         </div>
         <?php endforeach; ?>
         <?php if (empty($salles)): ?>
