@@ -15,6 +15,16 @@ if (isset($_GET['annuler'])) {
     exit;
 }
 
+$propositionMsg = null;
+if (isset($_GET['accepter'])) {
+    $result = $controller->accepterProposition($_GET['accepter'], $_SESSION['user_id']);
+    $propositionMsg = $result === true ? ['ok', 'Le nouveau créneau a été confirmé.'] : ['erreur', $result];
+}
+if (isset($_GET['refuserProposition'])) {
+    $result = $controller->refuserProposition($_GET['refuserProposition'], $_SESSION['user_id']);
+    $propositionMsg = $result === true ? ['ok', 'La proposition a été refusée, la réservation initiale est annulée/refusée.'] : ['erreur', $result];
+}
+
 // Liste complète (non filtrée) pour construire le menu déroulant des salles
 $toutesMesReservations = $controller->listByUtilisateur($_SESSION['user_id']);
 $sallesDistinctes = [];
@@ -48,6 +58,9 @@ function statutBadgeU($statut) {
     <?php if (($_GET['demande'] ?? '') === 'envoyee'): ?>
     <p class="msg-success">Votre demande de modification a été envoyée et est de nouveau en attente de validation.</p>
     <?php endif; ?>
+    <?php if ($propositionMsg): ?>
+    <p class="<?= $propositionMsg[0] === 'ok' ? 'msg-success' : 'msg-error' ?>"><?= htmlspecialchars($propositionMsg[1]) ?></p>
+    <?php endif; ?>
     <p style="color:var(--text-dim);">Vous pouvez modifier ou annuler une réservation jusqu'à <?= DELAI_LIMITE_HEURES ?>h avant le début de la réunion. Toute modification repasse la réservation en attente de validation.</p>
 
     <form class="filter-bar" method="GET" action="mesReservations.php">
@@ -71,6 +84,7 @@ function statutBadgeU($statut) {
         <tr><th>Salle</th><th>Objet</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr>
         <?php foreach ($mesReservations as $r):
             $modifiable = in_array($r['statut'], ['En attente', 'Validée']) && (strtotime($r['date_debut']) - time()) > DELAI_LIMITE_HEURES * 3600;
+            $aUneProposition = !empty($r['proposition_salle_id']);
         ?>
         <tr>
             <td><?= htmlspecialchars($r['salle_nom']) ?> (<?= htmlspecialchars($r['batiment_nom']) ?>)</td>
@@ -79,7 +93,9 @@ function statutBadgeU($statut) {
             <td><?= htmlspecialchars($r['date_fin']) ?></td>
             <td><?= statutBadgeU($r['statut']) ?></td>
             <td>
-                <?php if ($modifiable): ?>
+                <?php if ($aUneProposition): ?>
+                    <span style="color:var(--text-dim); font-size:12px;">non modifiable (proposition en attente)</span>
+                <?php elseif ($modifiable): ?>
                     <a href="updateReservationUser.php?id=<?= $r['id'] ?>">modifier</a> ·
                     <a href="mesReservations.php?annuler=<?= $r['id'] ?>" onclick="return confirm('Annuler cette réservation ?');" style="color:var(--danger);">annuler</a>
                 <?php else: ?>
@@ -87,6 +103,20 @@ function statutBadgeU($statut) {
                 <?php endif; ?>
             </td>
         </tr>
+        <?php if ($aUneProposition): ?>
+        <tr>
+            <td colspan="6" style="background:rgba(217,119,6,.08); border-left:3px solid var(--warning, orange);">
+                📩 Le gestionnaire propose un nouveau créneau :
+                <strong><?= htmlspecialchars($r['proposition_salle_nom']) ?></strong>,
+                du <strong><?= htmlspecialchars($r['proposition_date_debut']) ?></strong>
+                au <strong><?= htmlspecialchars($r['proposition_date_fin']) ?></strong>.
+                &nbsp;
+                <a href="mesReservations.php?accepter=<?= $r['id'] ?>" style="color:var(--success, green); font-weight:600;" onclick="return confirm('Accepter ce nouveau créneau ?');">✓ Accepter</a>
+                &nbsp;·&nbsp;
+                <a href="mesReservations.php?refuserProposition=<?= $r['id'] ?>" style="color:var(--danger, red); font-weight:600;" onclick="return confirm('Refuser cette proposition ? Votre réservation initiale sera refusée.');">✕ Refuser</a>
+            </td>
+        </tr>
+        <?php endif; ?>
         <?php endforeach; ?>
         <?php if (empty($mesReservations)): ?>
         <tr><td colspan="6">Aucune réservation ne correspond à ces critères. <a href="salles.php">Réservez une salle</a>.</td></tr>

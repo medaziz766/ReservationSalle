@@ -61,6 +61,26 @@ page Admin même en tapant l'URL directement, et inversement.
 - Modifier ou annuler ses réservations **jusqu'à 24h avant le début** (`mesReservations.php`)
 - Historique complet de ses réservations avec statut (badge coloré)
 
+## Proposition de créneau alternatif (Gestionnaire ↔ Utilisateur)
+
+En plus du "déplacement" immédiat (`moveReservation.php`, qui modifie directement la réservation), le
+Gestionnaire peut désormais **proposer** un autre créneau sans toucher à la réservation existante :
+
+- `View/Back/proposerCreneau.php` — formulaire (salle + créneau), accessible depuis `demandes.php` et
+  `conflits.php` (bouton **"proposer un créneau"**). Vérifie qu'il n'y a pas de conflit sur le créneau proposé.
+- Les infos de la proposition sont stockées dans les colonnes `proposition_salle_id`,
+  `proposition_date_debut`, `proposition_date_fin` de la table `reservation` (voir `sql/add_move_proposals.sql`) —
+  la réservation d'origine n'est **pas modifiée** tant que l'utilisateur n'a pas répondu.
+- Côté Utilisateur, `View/Front/mesReservations.php` affiche un bandeau "Le gestionnaire propose un nouveau
+  créneau" avec deux liens : **Accepter** (la proposition remplace la réservation, statut → Validée) ou
+  **Refuser** (la réservation d'origine passe en Refusée). Un email est envoyé à chaque étape
+  (`Mailer::notifyPropositionCreneau/Acceptee/Refusee`).
+- Tant qu'une proposition est en attente de réponse, la réservation n'apparaît plus avec les actions
+  valider/refuser/modifier habituelles (pour éviter les actions concurrentes).
+
+⚠️ Si ta base existe déjà, pense à exécuter `sql/add_move_proposals.sql` (une seule fois) si ce n'est pas
+déjà fait.
+
 ## Gestion des conflits
 
 `ReservationController::hasConflict()` vérifie, à chaque création ou modification, qu'aucune

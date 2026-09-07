@@ -84,4 +84,30 @@ class Mailer
                  . "<strong>Nouveau créneau :</strong> $nouvelleSalle, du $nouveauDebut au $nouvelleFin.</p>";
         self::send($to, $subject, $message);
     }
+
+    public static function notifyPropositionCreneau($to, $salleActuelle, $debutActuel, $finActuel, $salleProposee, $debutPropose, $finPropose)
+    {
+        $subject = "Nouveau créneau proposé pour votre réservation";
+        $message = "<p>Bonjour,</p><p>Le gestionnaire vous propose un autre créneau pour votre réservation initiale "
+                 . "(<strong>$salleActuelle</strong>, du $debutActuel au $finActuel), suite à un conflit.</p>"
+                 . "<p><strong>Créneau proposé :</strong> $salleProposee, du <strong>$debutPropose</strong> au <strong>$finPropose</strong>.</p>"
+                 . "<p>Connectez-vous à « Mes réservations » pour accepter ou refuser cette proposition.</p>";
+        self::send($to, $subject, $message);
+    }
+
+    public static function notifyPropositionAcceptee($to, $nomSalle, $dateDebut, $dateFin)
+    {
+        $subject = "Nouveau créneau confirmé - $nomSalle";
+        $message = "<p>Bonjour,</p><p>Vous avez accepté le créneau proposé. Votre réservation est confirmée : "
+                 . "<strong>$nomSalle</strong>, du <strong>$dateDebut</strong> au <strong>$dateFin</strong>.</p>";
+        self::send($to, $subject, $message);
+    }
+
+    public static function notifyPropositionRefusee($to, $nomSalle, $dateDebut, $dateFin)
+    {
+        $subject = "Proposition refusée - $nomSalle";
+        $message = "<p>Bonjour,</p><p>Vous avez refusé le créneau proposé par le gestionnaire. Votre réservation initiale "
+                 . "(<strong>$nomSalle</strong>, du $dateDebut au $dateFin) a donc été <strong>refusée</strong>.</p>";
+        self::send($to, $subject, $message);
+    }
 }

@@ -26,7 +26,7 @@ $active = 'demandes';
 <?php include 'sidebar.php'; ?>
 <div class="content">
     <h1>Demandes de réservation</h1>
-    <p class="subtitle">Valider ou refuser les demandes en attente.</p>
+    <p class="subtitle">Valider, refuser, ou proposer un autre créneau pour les demandes en attente.</p>
 
     <table class="admin-table">
         <tr><th>Type</th><th>Salle</th><th>Bâtiment</th><th>Demandeur</th><th>Objet</th><th>Début</th><th>Fin</th><th>Actions</th></tr>
@@ -40,8 +40,13 @@ $active = 'demandes';
             <td><?= htmlspecialchars($r['date_debut']) ?></td>
             <td><?= htmlspecialchars($r['date_fin']) ?></td>
             <td class="actions">
-                <a href="demandes.php?action=valider&id=<?= $r['id'] ?>" class="validate">valider</a>
-                <a href="demandes.php?action=refuser&id=<?= $r['id'] ?>" class="refuse">refuser</a>
+                <?php if (!empty($r['proposition_salle_id'])): ?>
+                    <span class="badge badge-warning">Proposition envoyée — en attente de réponse</span>
+                <?php else: ?>
+                    <a href="demandes.php?action=valider&id=<?= $r['id'] ?>" class="validate">valider</a>
+                    <a href="demandes.php?action=refuser&id=<?= $r['id'] ?>" class="refuse">refuser</a>
+                    <a href="proposerCreneau.php?id=<?= $r['id'] ?>" class="update">proposer un créneau</a>
+                <?php endif; ?>
             </td>
         </tr>
         <?php endforeach; ?>

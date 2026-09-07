@@ -42,3 +42,22 @@
 [2026-09-06 21:49:45] To: ahmedbenali@room.com | Subject: Réunion déplacée - Salle Nova
 <p>Bonjour,</p><p>Votre réunion a été déplacée par le gestionnaire afin de résoudre un conflit de réservation.</p><p><strong>Ancien créneau :</strong> Salle Aurora, du 2026-09-10 20:43:00 au 2026-09-11 20:44:00.<br><strong>Nouveau créneau :</strong> Salle Nova, du 2026-09-10 20:43:00 au 2026-09-11 20:44:00.</p>
 ----------------------
+[2026-09-07 02:32:37] To: mohamedazizelorf@gmail.com | Subject: Demande de réservation reçue - Salle Aurora
+<p>Bonjour,</p><p>Votre demande de réservation pour la salle <strong>Salle Aurora</strong> 
+                     du <strong>2026-09-12 01:30:00</strong> au <strong>2026-09-13 01:30:00</strong> a bien été enregistrée 
+                     et est en attente de validation.</p>
+----------------------
+[2026-09-07 02:36:25] To: ahmedbenali@room.com | Subject: Demande de réservation reçue - Salle Aurora
+<p>Bonjour,</p><p>Votre demande de réservation pour la salle <strong>Salle Aurora</strong> 
+                     du <strong>2026-09-12 02:36:00</strong> au <strong>2026-09-13 04:36:00</strong> a bien été enregistrée 
+                     et est en attente de validation.</p>
+----------------------
+[2026-09-07 02:36:48] To: mohamedazizelorf@gmail.com | Subject: Réunion déplacée - Salle Nova
+<p>Bonjour,</p><p>Votre réunion a été déplacée par le gestionnaire afin de résoudre un conflit de réservation.</p><p><strong>Ancien créneau :</strong> Salle Aurora, du 2026-09-12 12:12:00 au 2026-09-14 12:12:00.<br><strong>Nouveau créneau :</strong> Salle Nova, du 2026-09-12 12:12:00 au 2026-09-14 12:12:00.</p>
+----------------------
+[2026-09-08 00:11:43] To: mohamedazizelorf@gmail.com | Subject: Nouveau créneau proposé pour votre réservation
+<p>Bonjour,</p><p>Le gestionnaire vous propose un autre créneau pour votre réservation initiale (<strong>Salle Aurora</strong>, du 2026-09-12 01:30:00 au 2026-09-13 01:30:00), suite à un conflit.</p><p><strong>Créneau proposé :</strong> Salle Nova, du <strong>2026-09-15 23:11:00</strong> au <strong>2026-09-16 23:11:00</strong>.</p><p>Connectez-vous à « Mes réservations » pour accepter ou refuser cette proposition.</p>
+----------------------
+[2026-09-08 00:12:34] To: mohamedazizelorf@gmail.com | Subject: Nouveau créneau confirmé - Salle Nova
+<p>Bonjour,</p><p>Vous avez accepté le créneau proposé. Votre réservation est confirmée : <strong>Salle Nova</strong>, du <strong>2026-09-15 23:11:00</strong> au <strong>2026-09-16 23:11:00</strong>.</p>
+----------------------

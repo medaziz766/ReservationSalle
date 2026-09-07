@@ -22,10 +22,12 @@ class ReservationController
     public function getReservationById($id)
     {
         $pdo = config::getConnexion();
-        $stmt = $pdo->prepare("SELECT r.*, s.nom AS salle_nom, u.email AS user_email
+        $stmt = $pdo->prepare("SELECT r.*, s.nom AS salle_nom, u.email AS user_email,
+                                ps.nom AS proposition_salle_nom
                                 FROM reservation r
                                 JOIN salle s ON r.salle_id = s.id
                                 JOIN utilisateur u ON r.utilisateur_id = u.id
+                                LEFT JOIN salle ps ON r.proposition_salle_id = ps.id
                                 WHERE r.id = :id");
         $stmt->execute(['id' => $id]);
         return $stmt->fetch();
@@ -48,10 +50,12 @@ class ReservationController
     public function listByUtilisateurFiltre($utilisateurId, $statut = null, $salleId = null)
     {
         $pdo = config::getConnexion();
-        $sql = "SELECT r.*, s.nom AS salle_nom, b.nom AS batiment_nom
+        $sql = "SELECT r.*, s.nom AS salle_nom, b.nom AS batiment_nom,
+                       ps.nom AS proposition_salle_nom
                 FROM reservation r
                 JOIN salle s ON r.salle_id = s.id
                 JOIN batiment b ON s.batiment_id = b.id
+                LEFT JOIN salle ps ON r.proposition_salle_id = ps.id
                 WHERE r.utilisateur_id = :uid";
         $params = ['uid' => $utilisateurId];
 
@@ -311,5 +315,90 @@ class ReservationController
                               AND r1.date_debut < r2.date_fin
                               AND r1.date_fin > r2.date_debut");
         return $stmt->fetchAll();
+    }
+
+    // --- Proposition de créneau alternatif (Gestionnaire → Utilisateur) ---
+
+    // Le gestionnaire propose une autre salle/créneau SANS modifier la réservation existante.
+    // L'utilisateur devra ensuite accepter ou refuser cette proposition.
+    public function proposerCreneau($id, $salleId, $dateDebut, $dateFin)
+    {
+        if ($this->hasConflict($salleId, $dateDebut, $dateFin, $id)) {
+            return "Conflit : ce créneau n'est pas disponible pour la salle choisie.";
+        }
+
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare("UPDATE reservation
+                                SET proposition_salle_id = :salle_id,
+                                    proposition_date_debut = :date_debut,
+                                    proposition_date_fin = :date_fin
+                                WHERE id = :id");
+        $stmt->execute([
+            'salle_id' => $salleId,
+            'date_debut' => $dateDebut,
+            'date_fin' => $dateFin,
+            'id' => $id
+        ]);
+
+        $r = $this->getReservationById($id);
+        if ($r) {
+            Mailer::notifyPropositionCreneau(
+                $r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin'],
+                $r['proposition_salle_nom'], $dateDebut, $dateFin
+            );
+        }
+        return true;
+    }
+
+    // L'utilisateur accepte la proposition : elle devient la réservation officielle et est validée.
+    public function accepterProposition($id, $utilisateurId)
+    {
+        $r = $this->getReservationById($id);
+        if (!$r || $r['utilisateur_id'] != $utilisateurId || empty($r['proposition_salle_id'])) {
+            return "Aucune proposition à accepter pour cette réservation.";
+        }
+
+        if ($this->hasConflict($r['proposition_salle_id'], $r['proposition_date_debut'], $r['proposition_date_fin'], $id)) {
+            return "Ce créneau proposé n'est plus disponible, contactez le gestionnaire.";
+        }
+
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare("UPDATE reservation
+                                SET salle_id = proposition_salle_id,
+                                    date_debut = proposition_date_debut,
+                                    date_fin = proposition_date_fin,
+                                    statut = 'Validée',
+                                    proposition_salle_id = NULL,
+                                    proposition_date_debut = NULL,
+                                    proposition_date_fin = NULL
+                                WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+
+        $updated = $this->getReservationById($id);
+        if ($updated) {
+            Mailer::notifyPropositionAcceptee($updated['user_email'], $updated['salle_nom'], $updated['date_debut'], $updated['date_fin']);
+        }
+        return true;
+    }
+
+    // L'utilisateur refuse la proposition : la réservation d'origine est refusée (l'alternative n'a pas convenu).
+    public function refuserProposition($id, $utilisateurId)
+    {
+        $r = $this->getReservationById($id);
+        if (!$r || $r['utilisateur_id'] != $utilisateurId || empty($r['proposition_salle_id'])) {
+            return "Aucune proposition à refuser pour cette réservation.";
+        }
+
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare("UPDATE reservation
+                                SET statut = 'Refusée',
+                                    proposition_salle_id = NULL,
+                                    proposition_date_debut = NULL,
+                                    proposition_date_fin = NULL
+                                WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+
+        Mailer::notifyPropositionRefusee($r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin']);
+        return true;
     }
 }

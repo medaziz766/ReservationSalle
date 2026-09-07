@@ -30,6 +30,9 @@ $active = 'conflits';
     <?php if (($_GET['deplacement'] ?? '') === 'ok'): ?>
         <p class="msg-success">La réunion a été déplacée et le demandeur a été notifié par email.</p>
     <?php endif; ?>
+    <?php if (($_GET['proposition'] ?? '') === 'ok'): ?>
+        <p class="msg-success">La proposition a été envoyée à l'utilisateur, qui doit l'accepter ou la refuser.</p>
+    <?php endif; ?>
 
     <?php if (empty($conflits)): ?>
         <p class="msg-success">Aucun conflit détecté actuellement.</p>
@@ -48,6 +51,7 @@ $active = 'conflits';
             <td class="actions">
                 <a href="conflits.php?refuser=<?= $c['id1'] ?>" class="refuse">refuser cette réservation</a>
                 <a href="moveReservation.php?id=<?= $c['id1'] ?>" class="update">déplacer</a>
+                <a href="proposerCreneau.php?id=<?= $c['id1'] ?>" class="validate">proposer un créneau</a>
             </td>
         </tr>
         <tr>
@@ -57,6 +61,7 @@ $active = 'conflits';
             <td class="actions">
                 <a href="conflits.php?refuser=<?= $c['id2'] ?>" class="refuse">refuser cette réservation</a>
                 <a href="moveReservation.php?id=<?= $c['id2'] ?>" class="update">déplacer</a>
+                <a href="proposerCreneau.php?id=<?= $c['id2'] ?>" class="validate">proposer un créneau</a>
             </td>
         </tr>
     </table>

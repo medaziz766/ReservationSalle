@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return valid;
     }
     function checkObjet() {
+        if (!objet) return true;
         const valid = objet.value.trim().length >= 3;
         setMsg(objet, valid ? 'Correct' : "L'objet doit contenir au moins 3 caractères.", valid);
         return valid;
