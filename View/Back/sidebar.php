@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/../../config.php';
 requireRole(['Admin', 'Gestionnaire']);
+require_once __DIR__ . '/../../Controller/NotificationController.php';
 $active = $active ?? '';
 $role = $_SESSION['role'];
+$nbNonLues = $role === 'Gestionnaire' ? (new NotificationController())->compterNonLuesGestionnaire() : 0;
 ?>
 <div class="sidebar">
     <div class="brand">Room<span>Booking</span></div>
@@ -19,6 +21,9 @@ $role = $_SESSION['role'];
             <a href="reservationManuelle.php" class="<?= $active === 'manuelle' ? 'active' : '' ?>">Réservation manuelle</a>
             <a href="conflits.php" class="<?= $active === 'conflits' ? 'active' : '' ?>">Conflits</a>
             <a href="recherche.php" class="<?= $active === 'recherche' ? 'active' : '' ?>">Recherche</a>
+            <a href="boiteMail.php" class="<?= $active === 'boiteMail' ? 'active' : '' ?>">
+                Boîte mail<?php if ($nbNonLues > 0): ?> <span class="nav-badge"><?= $nbNonLues ?></span><?php endif; ?>
+            </a>
         <?php endif; ?>
     </nav>
     <button id="themeToggle" class="theme-toggle" type="button" title="Changer de thème">🌙</button>

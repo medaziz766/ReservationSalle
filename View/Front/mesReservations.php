@@ -97,7 +97,7 @@ function statutBadgeU($statut) {
                     <span style="color:var(--text-dim); font-size:12px;">non modifiable (proposition en attente)</span>
                 <?php elseif ($modifiable): ?>
                     <a href="updateReservationUser.php?id=<?= $r['id'] ?>">modifier</a> ·
-                    <a href="mesReservations.php?annuler=<?= $r['id'] ?>" onclick="return confirm('Annuler cette réservation ?');" style="color:var(--danger);">annuler</a>
+                    <a href="mesReservations.php?annuler=<?= $r['id'] ?>" onclick="return confirm('Annuler cette réservation ?');" style="color:var(--brick);">annuler</a>
                 <?php else: ?>
                     <span style="color:var(--text-dim); font-size:12px;">non modifiable</span>
                 <?php endif; ?>
@@ -105,15 +105,15 @@ function statutBadgeU($statut) {
         </tr>
         <?php if ($aUneProposition): ?>
         <tr>
-            <td colspan="6" style="background:rgba(217,119,6,.08); border-left:3px solid var(--warning, orange);">
+            <td colspan="6" style="background:rgba(217,119,6,.08); border-left:3px solid var(--amber, orange);">
                 📩 Le gestionnaire propose un nouveau créneau :
                 <strong><?= htmlspecialchars($r['proposition_salle_nom']) ?></strong>,
                 du <strong><?= htmlspecialchars($r['proposition_date_debut']) ?></strong>
                 au <strong><?= htmlspecialchars($r['proposition_date_fin']) ?></strong>.
                 &nbsp;
-                <a href="mesReservations.php?accepter=<?= $r['id'] ?>" style="color:var(--success, green); font-weight:600;" onclick="return confirm('Accepter ce nouveau créneau ?');">✓ Accepter</a>
+                <a href="mesReservations.php?accepter=<?= $r['id'] ?>" style="color:var(--forest, green); font-weight:600;" onclick="return confirm('Accepter ce nouveau créneau ?');">✓ Accepter</a>
                 &nbsp;·&nbsp;
-                <a href="mesReservations.php?refuserProposition=<?= $r['id'] ?>" style="color:var(--danger, red); font-weight:600;" onclick="return confirm('Refuser cette proposition ? Votre réservation initiale sera refusée.');">✕ Refuser</a>
+                <a href="mesReservations.php?refuserProposition=<?= $r['id'] ?>" style="color:var(--brick, red); font-weight:600;" onclick="return confirm('Refuser cette proposition ? Votre réservation initiale sera refusée.');">✕ Refuser</a>
             </td>
         </tr>
         <?php endif; ?>

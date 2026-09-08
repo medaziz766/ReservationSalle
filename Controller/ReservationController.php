@@ -2,9 +2,17 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Model/Reservation.php';
 require_once __DIR__ . '/../Helper/Mailer.php';
+require_once __DIR__ . '/../Controller/NotificationController.php';
 
 class ReservationController
 {
+    private $notificationController;
+
+    public function __construct()
+    {
+        $this->notificationController = new NotificationController();
+    }
+
     // Liste complète avec jointures (salle, bâtiment, utilisateur) pour affichage BackOffice
     public function listReservations()
     {
@@ -23,6 +31,7 @@ class ReservationController
     {
         $pdo = config::getConnexion();
         $stmt = $pdo->prepare("SELECT r.*, s.nom AS salle_nom, u.email AS user_email,
+                                u.nom AS user_nom, u.prenom AS user_prenom,
                                 ps.nom AS proposition_salle_nom
                                 FROM reservation r
                                 JOIN salle s ON r.salle_id = s.id
@@ -123,59 +132,13 @@ class ReservationController
             'type_demande' => $r->getTypeDemande() ?: 'Création',
             'date_creation' => $r->getDateCreation()
         ]);
-        return true;
-    }
 
-    // Modification / déplacement de réunion PAR LE GESTIONNAIRE (résolution de conflit) :
-    // n'affecte pas le statut, changement immédiat.
-    public function updateReservation(Reservation $r)
-    {
-        $reservationActuelle = $this->getReservationById($r->getId());
-        if (!$reservationActuelle) {
-            return "Réservation introuvable.";
-        }
-
-        if (strlen(trim($r->getObjet())) < 3) {
-            return "L'objet doit contenir au moins 3 caractères.";
-        }
-
-        $debut = strtotime($r->getDateDebut());
-        $fin = strtotime($r->getDateFin());
-        if ($debut === false || $fin === false || $fin <= $debut) {
-            return "La date de fin doit être postérieure à la date de début.";
-        }
-
-        $pdo = config::getConnexion();
-        $salleStmt = $pdo->prepare("SELECT id FROM salle WHERE id = :id AND statut = 'Disponible'");
-        $salleStmt->execute(['id' => $r->getSalleId()]);
-        if (!$salleStmt->fetch()) {
-            return "La salle choisie n'est pas disponible pour un déplacement.";
-        }
-
-        if ($this->hasConflict($r->getSalleId(), $r->getDateDebut(), $r->getDateFin(), $r->getId())) {
-            return "Conflit : le nouveau créneau chevauche une autre réservation.";
-        }
-
-        $stmt = $pdo->prepare("UPDATE reservation SET salle_id=:salle_id, objet=:objet,
-                                date_debut=:date_debut, date_fin=:date_fin WHERE id=:id");
-        $stmt->execute([
-            'salle_id' => $r->getSalleId(),
-            'objet' => $r->getObjet(),
-            'date_debut' => $r->getDateDebut(),
-            'date_fin' => $r->getDateFin(),
-            'id' => $r->getId()
-        ]);
-
-        $reservationDeplacee = $this->getReservationById($r->getId());
-        if ($reservationDeplacee) {
-            Mailer::notifyReservationDeplacee(
-                $reservationDeplacee['user_email'],
-                $reservationActuelle['salle_nom'],
-                $reservationActuelle['date_debut'],
-                $reservationActuelle['date_fin'],
-                $reservationDeplacee['salle_nom'],
-                $reservationDeplacee['date_debut'],
-                $reservationDeplacee['date_fin']
+        $newId = $pdo->lastInsertId();
+        $created = $this->getReservationById($newId);
+        if ($created) {
+            $this->notificationController->creer(
+                $created['utilisateur_id'], $newId, 'Gestionnaire', 'NouvelleDemande',
+                $created['user_prenom'] . ' ' . $created['user_nom'] . ' a demandé « ' . $created['salle_nom'] . ' », du ' . $created['date_debut'] . ' au ' . $created['date_fin'] . '.'
             );
         }
         return true;
@@ -202,6 +165,10 @@ class ReservationController
         $updated = $this->getReservationById($r->getId());
         if ($updated) {
             Mailer::notifyDemandeModification($updated['user_email'], $updated['salle_nom'], $updated['date_debut'], $updated['date_fin']);
+            $this->notificationController->creer(
+                $updated['utilisateur_id'], $updated['id'], 'Gestionnaire', 'DemandeModification',
+                $updated['user_prenom'] . ' ' . $updated['user_nom'] . ' a demandé une modification pour « ' . $updated['salle_nom'] . ' » : nouveau créneau du ' . $updated['date_debut'] . ' au ' . $updated['date_fin'] . '.'
+            );
         }
         return true;
     }
@@ -215,6 +182,10 @@ class ReservationController
         $r = $this->getReservationById($id);
         if ($r) {
             Mailer::notifyReservationValidee($r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin']);
+            $this->notificationController->creer(
+                $r['utilisateur_id'], $id, 'Utilisateur', 'Validee',
+                'Votre réservation pour « ' . $r['salle_nom'] . '» (' . $r['date_debut'] . ' → ' . $r['date_fin'] . ') a été validée.'
+            );
         }
     }
 
@@ -227,6 +198,10 @@ class ReservationController
         $r = $this->getReservationById($id);
         if ($r) {
             Mailer::notifyReservationRefusee($r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin']);
+            $this->notificationController->creer(
+                $r['utilisateur_id'], $id, 'Utilisateur', 'Refusee',
+                'Votre réservation pour « ' . $r['salle_nom'] . '» (' . $r['date_debut'] . ' → ' . $r['date_fin'] . ') a été refusée.'
+            );
         }
     }
 
@@ -240,6 +215,10 @@ class ReservationController
         $r = $this->getReservationById($id);
         if ($r) {
             Mailer::notifyReservationAnnulee($r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin']);
+            $this->notificationController->creer(
+                $r['utilisateur_id'], $id, 'Gestionnaire', 'Annulee',
+                $r['user_prenom'] . ' ' . $r['user_nom'] . ' a annulé sa réservation pour « ' . $r['salle_nom'] . ' » (' . $r['date_debut'] . ' → ' . $r['date_fin'] . ').'
+            );
         }
     }
 
@@ -346,6 +325,10 @@ class ReservationController
                 $r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin'],
                 $r['proposition_salle_nom'], $dateDebut, $dateFin
             );
+            $this->notificationController->creer(
+                $r['utilisateur_id'], $id, 'Utilisateur', 'Proposition',
+                'Le gestionnaire propose un autre créneau pour « ' . $r['salle_nom'] . ' » : ' . $r['proposition_salle_nom'] . ', du ' . $dateDebut . ' au ' . $dateFin . '.'
+            );
         }
         return true;
     }
@@ -377,6 +360,10 @@ class ReservationController
         $updated = $this->getReservationById($id);
         if ($updated) {
             Mailer::notifyPropositionAcceptee($updated['user_email'], $updated['salle_nom'], $updated['date_debut'], $updated['date_fin']);
+            $this->notificationController->creer(
+                $updated['utilisateur_id'], $id, 'Gestionnaire', 'PropositionAcceptee',
+                $updated['user_prenom'] . ' ' . $updated['user_nom'] . ' a accepté le nouveau créneau : « ' . $updated['salle_nom'] . ' », du ' . $updated['date_debut'] . ' au ' . $updated['date_fin'] . '.'
+            );
         }
         return true;
     }
@@ -399,6 +386,10 @@ class ReservationController
         $stmt->execute(['id' => $id]);
 
         Mailer::notifyPropositionRefusee($r['user_email'], $r['salle_nom'], $r['date_debut'], $r['date_fin']);
+        $this->notificationController->creer(
+            $r['utilisateur_id'], $id, 'Gestionnaire', 'PropositionRefusee',
+            $r['user_prenom'] . ' ' . $r['user_nom'] . ' a refusé la proposition pour « ' . $r['salle_nom'] . ' ». Réservation refusée.'
+        );
         return true;
     }
 }

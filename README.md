@@ -63,8 +63,8 @@ page Admin même en tapant l'URL directement, et inversement.
 
 ## Proposition de créneau alternatif (Gestionnaire ↔ Utilisateur)
 
-En plus du "déplacement" immédiat (`moveReservation.php`, qui modifie directement la réservation), le
-Gestionnaire peut désormais **proposer** un autre créneau sans toucher à la réservation existante :
+Le Gestionnaire résout les conflits en **proposant** un autre créneau plutôt qu'en modifiant la réservation
+directement (jugé plus professionnel : la décision finale revient à l'utilisateur) :
 
 - `View/Back/proposerCreneau.php` — formulaire (salle + créneau), accessible depuis `demandes.php` et
   `conflits.php` (bouton **"proposer un créneau"**). Vérifie qu'il n'y a pas de conflit sur le créneau proposé.
@@ -81,14 +81,31 @@ Gestionnaire peut désormais **proposer** un autre créneau sans toucher à la r
 ⚠️ Si ta base existe déjà, pense à exécuter `sql/add_move_proposals.sql` (une seule fois) si ce n'est pas
 déjà fait.
 
+## Boîte mail interne (notifications en base, en plus des emails)
+
+En plus des emails envoyés via `Mailer`, chaque étape importante du cycle de vie d'une réservation crée
+aussi une **notification en base** (table `notification`, voir `sql/add_notifications.sql`), consultable
+directement dans l'application sans avoir besoin d'un serveur mail :
+
+- **Boîte Utilisateur** (`View/Front/boiteMail.php`, lien "Boîte mail" dans le header) : reçoit les réponses
+  du gestionnaire — validation, refus, proposition de créneau.
+- **Boîte Gestionnaire** (`View/Back/boiteMail.php`, commune à tous les gestionnaires, lien dans la sidebar) :
+  reçoit toutes les actions des utilisateurs — nouvelle demande, demande de modification, annulation,
+  réponse à une proposition (acceptée/refusée).
+- Un badge rouge (`.nav-badge`) affiche le nombre de messages non lus à côté du lien "Boîte mail", mis à jour
+  à chaque chargement de page. Chaque message peut être marqué comme lu individuellement ou via
+  "Tout marquer comme lu".
+
+⚠️ Si ta base existe déjà, exécute `sql/add_notifications.sql` (une seule fois) pour créer la table.
+
 ## Gestion des conflits
 
 `ReservationController::hasConflict()` vérifie, à chaque création ou modification, qu'aucune
 réservation existante (statut `En attente` ou `Validée`) sur la même salle ne chevauche le
 nouveau créneau (`date_debut < nouvelle_fin AND date_fin > nouveau_debut`). Le Gestionnaire
 dispose en plus d'une vue `conflits.php` qui détecte les chevauchements déjà présents en base
-(cas de double saisie manuelle) et permet de refuser l'une des deux réservations ou de déplacer
-une réunion vers un autre créneau/salle.
+(cas de double saisie manuelle) et permet de refuser l'une des deux réservations ou de lui
+proposer un autre créneau/salle (voir section ci-dessus).
 
 ## Emails
 
@@ -138,6 +155,15 @@ bascule entre thème clair et sombre. Le choix est mémorisé dans le `localStor
 des variables (`:root[data-theme="dark"]`) — y compris les couleurs de fond des tableaux et des champs de
 formulaire (`--table-header-bg`, `--input-bg`), qui restaient blanches par erreur dans une version précédente.
 
+
+## Direction visuelle
+
+Thème "signalétique de bâtiment" (plutôt que le bleu/blanc SaaS générique) : encre (`--ink`), papier
+(`--paper`), un seul accent laiton (`--brass`) réservé aux actions et états actifs. Typographie **Archivo**
+(titres, gras/condensé) + **IBM Plex Sans** (texte courant) + **IBM Plex Mono** (codes de salle, dates,
+heures — pour un rendu "tableau d'affichage/horaires"). Coins peu arrondis (4-5px), bordures fines plutôt que
+des ombres. Mode sombre géré via `:root[data-theme="dark"]` dans `admin.css` et `style.css`, avec les mêmes
+noms de variables des deux côtés (Back/Front) pour rester cohérent.
 
 ## Installation (XAMPP / WAMP)
 

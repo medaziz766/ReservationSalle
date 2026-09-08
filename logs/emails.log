@@ -61,3 +61,19 @@
 [2026-09-08 00:12:34] To: mohamedazizelorf@gmail.com | Subject: Nouveau créneau confirmé - Salle Nova
 <p>Bonjour,</p><p>Vous avez accepté le créneau proposé. Votre réservation est confirmée : <strong>Salle Nova</strong>, du <strong>2026-09-15 23:11:00</strong> au <strong>2026-09-16 23:11:00</strong>.</p>
 ----------------------
+[2026-09-09 00:16:14] To: mohamedazizelorf@gmail.com | Subject: Demande de réservation reçue - Salle Nova
+<p>Bonjour,</p><p>Votre demande de réservation pour la salle <strong>Salle Nova</strong> 
+                     du <strong>2026-09-29 23:15:00</strong> au <strong>2026-09-30 23:16:00</strong> a bien été enregistrée 
+                     et est en attente de validation.</p>
+----------------------
+[2026-09-09 00:17:18] To: ahmedbenali@room.com | Subject: Demande de réservation reçue - Salle Nova
+<p>Bonjour,</p><p>Votre demande de réservation pour la salle <strong>Salle Nova</strong> 
+                     du <strong>2026-09-29 00:16:00</strong> au <strong>2026-09-30 00:17:00</strong> a bien été enregistrée 
+                     et est en attente de validation.</p>
+----------------------
+[2026-09-09 00:18:14] To: ahmedbenali@room.com | Subject: Nouveau créneau proposé pour votre réservation
+<p>Bonjour,</p><p>Le gestionnaire vous propose un autre créneau pour votre réservation initiale (<strong>Salle Nova</strong>, du 2026-09-29 00:16:00 au 2026-09-30 00:17:00), suite à un conflit.</p><p><strong>Créneau proposé :</strong> Salle Atlas, du <strong>2026-09-29 23:18:00</strong> au <strong>2026-09-30 23:18:00</strong>.</p><p>Connectez-vous à « Mes réservations » pour accepter ou refuser cette proposition.</p>
+----------------------
+[2026-09-09 00:18:45] To: ahmedbenali@room.com | Subject: Nouveau créneau confirmé - Salle Atlas
+<p>Bonjour,</p><p>Vous avez accepté le créneau proposé. Votre réservation est confirmée : <strong>Salle Atlas</strong>, du <strong>2026-09-29 23:18:00</strong> au <strong>2026-09-30 23:18:00</strong>.</p>
+----------------------

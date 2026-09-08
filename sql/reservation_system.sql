@@ -45,9 +45,27 @@ CREATE TABLE reservation (
     date_fin DATETIME NOT NULL,
     statut ENUM('En attente','Validée','Refusée','Annulée') NOT NULL DEFAULT 'En attente',
     type_demande ENUM('Création','Modification') NOT NULL DEFAULT 'Création',
+    proposition_salle_id INT NULL,
+    proposition_date_debut DATETIME NULL,
+    proposition_date_fin DATETIME NULL,
     date_creation DATETIME NOT NULL,
     FOREIGN KEY (salle_id) REFERENCES salle(id) ON DELETE CASCADE,
-    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id) ON DELETE CASCADE
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id) ON DELETE CASCADE,
+    FOREIGN KEY (proposition_salle_id) REFERENCES salle(id) ON DELETE SET NULL
+);
+
+-- 5. Notification (boîte mail interne Utilisateur ↔ Gestionnaire)
+CREATE TABLE notification (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilisateur_id INT NOT NULL,
+    reservation_id INT NULL,
+    destinataire_role ENUM('Utilisateur','Gestionnaire') NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    lu TINYINT(1) NOT NULL DEFAULT 0,
+    date_creation DATETIME NOT NULL,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id) ON DELETE CASCADE,
+    FOREIGN KEY (reservation_id) REFERENCES reservation(id) ON DELETE CASCADE
 );
 
 -- Données d'exemple
